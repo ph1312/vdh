@@ -1,0 +1,129 @@
+
+        <!DOCTYPE html>
+        <html lang="nl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Product Catalogus</title>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+            <style>
+                .product-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+                .product-card {
+                    transition: all 0.3s ease;
+                }
+                .product-image {
+                    height: 300px;
+                    width: 100%;
+                    object-fit: contain;
+                    background-color: white;
+                    padding: 8px;
+                }
+                .modal-image {
+                    max-height: 500px;
+                    width: 100%;
+                    object-fit: contain;
+                    background-color: white;
+                }
+            </style>
+        </head>
+        <body class="bg-gray-100">
+            <div class="container mx-auto px-4 py-8">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-bold text-center mb-4">VDH</h1>
+                    <div class="max-w-md mx-auto">
+                        <input type="text" id="search" 
+                               placeholder="Zoek producten..." 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500">
+                    </div>
+                </header>
+                
+                <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Products will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Modal template -->
+            <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-lg max-w-2xl w-full p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 id="modal-title" class="text-2xl font-bold"></h2>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="w-full md:w-1/2">
+                            <img id="modal-image" class="modal-image rounded-lg" 
+                                 onerror="this.src='https://via.placeholder.com/400x400?text=Geen+afbeelding'">
+                        </div>
+                        <div class="flex flex-col justify-between w-full md:w-1/2">
+                            <div>
+                                <p id="modal-id" class="text-lg mb-2"></p>
+                                <p id="modal-price" class="text-2xl font-bold mb-4"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                const products = [{"id": "ART0001", "name": "Sunred Gas Patio Heater", "price": "175.00", "image": "https://drive.google.com/uc?export=view&id=1CLF-LARS_Mp31AmFJmbg3ahJybwfdwEW"}, {"id": "ART0003", "name": "Black +Decker zaag", "price": "50.00", "image": "https://drive.google.com/uc?export=view&id=1xlvcmR12qBiJU8JSFHVFkZrJ_7YqV4-k"}, {"id": "ART0004", "name": "HBM koffer", "price": "35.00", "image": "https://drive.google.com/uc?export=view&id=13Df6c17jDi1bP3Zw5bmywf6fuaqdSzXV"}, {"id": "ART0005", "name": "Denver Lijst", "price": "30.00", "image": "https://drive.google.com/uc?export=view&id=1GGSMZj2zkDC6GQ-_22Q7Un_a5Pl0AtXh"}, {"id": "ART0006", "name": "Kar 7 laden gevuld", "price": "325.00", "image": "https://drive.google.com/uc?export=view&id=18suuPiix1UW5w3K1qRVzlyHA7ZPbQKB5"}, {"id": "ART0007", "name": "Kar 10 laden gevuld", "price": "650.00", "image": "https://drive.google.com/uc?export=view&id=1v-djEuhuGTPHDyfyUVY8-Aeg0WiiS_Ta"}, {"id": "ART0008", "name": "Kar 10 lade gevuld", "price": "650.00", "image": "https://drive.google.com/uc?export=view&id=1lq7QbKjCz8Zdrww_9NHTy016Hw4evpKH"}, {"id": "ART0009", "name": "Kar 11 laden gevuld (groot)", "price": "1200.00", "image": "https://drive.google.com/uc?export=view&id=1kuDSh7hSb9sdL7TFUyjT1no43mMy1igh"}, {"id": "ART0010", "name": "Rolmaat Stanley (FatMax)", "price": "7.50", "image": "https://drive.google.com/uc?export=view&id=1dFKjITaTUmb1Kj-rz4Icnz7qf6wYOW2f"}, {"id": "ART0011", "name": "HBM set 1", "price": "22.95", "image": "https://drive.google.com/uc?export=view&id=1Mj7MAiV5RLUcFTCuWgWpnZpmxbJMm2pj"}, {"id": "ART0012", "name": "HBM Set 2", "price": "30.00", "image": "https://drive.google.com/uc?export=view&id=1NtSF8EeMLTyTmh6b97CO2yfOdHAKnkR4"}, {"id": "ART0013", "name": "HBM Set 3", "price": "25.00", "image": "https://drive.google.com/uc?export=view&id=1ZdedSnNb4WwbxYP1eoOB7EqfWd883hWD"}, {"id": "ART0014", "name": "HBM set 4", "price": "20.00", "image": "https://drive.google.com/uc?export=view&id=1s_NymL4Pncv7feJvRM4gXVmdTiXbkvT2"}, {"id": "ART0015", "name": "Liva One (barebown)", "price": "30.00", "image": "https://drive.google.com/uc?export=view&id=1eKgtXN0FhVlG2qfz9GY94Vqo_kpM_zQO"}, {"id": "ART0016", "name": "Reciprozaagblad set", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1Ulr3xU5T326VY2_h393bGM7nQmbnnCRV"}, {"id": "ART0017", "name": "reciprozaagblad 2st (hout & metaal)", "price": "4.00", "image": "https://drive.google.com/uc?export=view&id=1VMXjt20vfot_cobSfFtVlMad285I3Ftv"}, {"id": "ART0018", "name": "Decoupeerzaagjes bosch (2st)", "price": "2.50", "image": "https://drive.google.com/uc?export=view&id=13hCFcBWOIbPg1IPF5m0II352kAtw1Oxe"}, {"id": "ART0019", "name": "Bahco combinatietang", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1dVVR1LgrYlwFIGVeQNCca1mvqDPxFXTs"}, {"id": "ART0020", "name": "Bosch set 1", "price": "10.00", "image": "https://drive.google.com/uc?export=view&id=1Qk8LrFr2B-Mv_tNXIcRMxrwCiDesIFKN"}, {"id": "ART0021", "name": "bosch set 2 ", "price": "10.00", "image": "https://drive.google.com/uc?export=view&id=1Y2MWdEj_cPBW5_Re2XJdfdRv0bzUFSoX"}, {"id": "ART0022", "name": "milwaukee koffer", "price": "15.00", "image": "https://drive.google.com/uc?export=view&id=1brf_OvfGv3g7lj9CvPCG58wCpzwk3Onz"}, {"id": "ART0023", "name": "Bosch metaal boortjes ", "price": "2.50", "image": "https://drive.google.com/uc?export=view&id=1L00ALkpvvV4b2cfpeons3N4LRHoUXPpC"}, {"id": "ART0024", "name": "4 ton krik", "price": "110.00", "image": "https://drive.google.com/uc?export=view&id=1QetyKgcULTot6RJv9REGvInO0PdXFWGe"}, {"id": "ART0025", "name": "Bosch gatenboor", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1ouYwumzxPUAn-VwuWhUq0IW6bJBRt31I"}, {"id": "ART0026", "name": "Veiligheids slot", "price": "10.00", "image": "https://drive.google.com/uc?export=view&id=1SymxMBZ6SrLfLe--Vj2dB02cTGBuyMP8"}, {"id": "ART0027", "name": "Bosch schroef en plug set", "price": "7.50", "image": "https://drive.google.com/uc?export=view&id=1uq33VRDCh29gnLdw8E-Wrs-braQbV9rD"}, {"id": "ART0028", "name": "Wolfcraft veiligheids bit-set", "price": "7.50", "image": "https://drive.google.com/uc?export=view&id=11F34TGjVuLdDZrIS5xXvnn0X7PgICPdf"}, {"id": "ART0029", "name": "wolfcraft boor set", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1Otefc90FwxVdBVkSJDqINsLit0h4C6kY"}, {"id": "ART0030", "name": "De walt Boor set", "price": "7.50", "image": "https://drive.google.com/uc?export=view&id=1FcqKku7Gq7iSAJxnlYrz-c6t-0OI1tn9"}, {"id": "ART0031", "name": "bosch bit set 1", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1VHnzq5Ald9uR3hgb56AWhCtI8PfGwvN3"}, {"id": "ART0032", "name": "bosch bit set 2", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1rfmsIiV2NUb7qTKsGY5yi5pgeOz294qQ"}, {"id": "ART0033", "name": "Bosch bit set 3", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1Y6Rie4AbccqpFNwVHwyLPKRCdF6xV5fw"}, {"id": "ART0034", "name": "Bosch Schuurpapier ", "price": "2.50", "image": "https://drive.google.com/uc?export=view&id=1pvZ0ivXV1wyTqQqwDFIIaw6Kh9NzjAq-"}, {"id": "ART0035", "name": "Bosch Schuurpapier ", "price": "2.50", "image": "https://drive.google.com/uc?export=view&id=1fWD0iIf5ZmEK63Gbtx7YKCnMCEztZctP"}, {"id": "ART0036", "name": "Bosch Schuurpapier ", "price": "2.50", "image": "https://drive.google.com/uc?export=view&id=1P4JXLS8a23vjjNLLDxSbO18mMQEzAEwd"}, {"id": "ART0037", "name": "Stanley schuurpapier", "price": "2.00", "image": "https://drive.google.com/uc?export=view&id=1LcWJNe3CwUQzvCQ8G5PqX9Nm4TRpkCSl"}, {"id": "ART0038", "name": "Bosch Forstnerboor\n", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1Zkk-D-kcQLmT2m4DbSIHk33Fw7KY5OPB"}, {"id": "ART0039", "name": "Schuurschijf", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1uNr5uVzEb-6JvrsZoJhoWQjBHT0hZmmc"}, {"id": "ART0040", "name": "Bosch Decoupeerzagenset Hout/Metaal - 8-delig\n", "price": "4.00", "image": "https://drive.google.com/uc?export=view&id=1gUj6eBN-erAGgDXGVzybbsB4bLWJ5O44"}, {"id": "ART0041", "name": "Bosch - Lamellendeuvel 60 mm", "price": "2.50", "image": "https://drive.google.com/uc?export=view&id=13jUN1A8vlDv4anoleYdoX7xZplFRM0JL"}, {"id": "ART0042", "name": "Stanley 6-delige schroevendraaierset \n", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1A0Xrab-gd8I42rxvSJtkFo-3Myyt8OFO"}, {"id": "ART0043", "name": "Stanley Tangenset ", "price": "7.50", "image": "https://drive.google.com/uc?export=view&id=1H_coneuqo7YwUdg6Xi3Smf5DVoP4dkTc"}, {"id": "ART0044", "name": "DEWALT HSS decoupeerzaagbladen", "price": "4.00", "image": "https://drive.google.com/uc?export=view&id=1vGGpmMn1G9zx6ro6p_ulIefXf5PdsAXx"}, {"id": "ART0045", "name": "DeWALT  Magnetische zeskantdopsleutel 8mm", "price": "4.00", "image": "https://drive.google.com/uc?export=view&id=1nhB6L5F5j2lx3uSwiJwZ-Ka2ODX1mWs1"}, {"id": "ART0046", "name": "DeWALT Mag Schroefbithouder 60 mm \n", "price": "4.00", "image": "https://drive.google.com/uc?export=view&id=1HgwTa-pW-WdamSVXR3I9SvckujnRvkY3"}, {"id": "ART0047", "name": "DeWalt Reciprozaagbladen voor Isolatie ", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=15hWcuCnEXBJ3LFwE6iWUK1-6TIRvv8gb"}, {"id": "ART0048", "name": "wolfcraft Profielfrezenset 8 mm 5-delig", "price": "10.00", "image": "https://drive.google.com/uc?export=view&id=10_lqpwlIx5Ud7-q9x0ewz5-aPDY5Qvrt"}, {"id": "ART0049", "name": "Wolfcraft Bitbox", "price": "4.00", "image": "https://drive.google.com/uc?export=view&id=1-PWoaGVYDtvT2sHNAzR6V4R95Mx3VM6h"}, {"id": "ART0050", "name": "DeWALT  HSS-G metaalboor (verschillende mm)", "price": "3.00", "image": "https://drive.google.com/uc?export=view&id=1Hm4-PUlX7OAtx1mQTCzhi9qk6KSz07b5"}, {"id": "ART0051", "name": "BOSCH slangenboor zeskantschacht ( verschillende mm)", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1BVlIq_Mywa7rPn0SLwO9YNDe1qHCMAON"}, {"id": "ART0052", "name": "Bosch Cirkelzaagblad wood ", "price": "10.00", "image": "https://drive.google.com/uc?export=view&id=1drm4M5sMkua_wtEUW7MeVmSarR0jK5FW"}, {"id": "ART0053", "name": "Diamantschijf BETON", "price": "7.50", "image": "https://drive.google.com/uc?export=view&id=1bwjcQ9BdIqkR58nd2VjgraeA7AYYOex_"}, {"id": "ART0054", "name": "Bosch Diamantgatzaag", "price": "8.00", "image": "https://drive.google.com/uc?export=view&id=1RaFjJUvDsm4NpdE55RBTHQZLbkahBgMA"}, {"id": "ART0055", "name": "Gatzagenset, 7-delig", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1wxg7FZ6Ohk-1a0oBlbqo2u-SlVjPUFO0"}, {"id": "ART0056", "name": "Gatzaag voor spots", "price": "2.50", "image": "https://drive.google.com/uc?export=view&id=1peljzinA8mAdV3vBkJ4ggOqsFwLtaQZB"}, {"id": "ART0057", "name": "Bosch - Snelspanboorhouder tot 13 mm", "price": "12.50", "image": "https://drive.google.com/uc?export=view&id=1V3xTO-QQAiqcLo-fxOJYrLM-fb4NZsPf"}, {"id": "ART0058", "name": "Bosch Hardmetalen komschijf", "price": "10.00", "image": "https://drive.google.com/uc?export=view&id=1lUBJcQdCX_Qc1rvtPnafYAWgCWbrq33C"}, {"id": "ART0059", "name": "Wolfcraft Multitool segmentzaagblad bestrooid ", "price": "3.00", "image": "https://drive.google.com/uc?export=view&id=15q5GrJolGyGH5Nmq4I9fg6TZ_UNaFIoQ"}, {"id": "ART0060", "name": "Wolfcraft Multitool schuurplaat 95mm", "price": "3.00", "image": "https://drive.google.com/uc?export=view&id=1WvrvBTAnlVFR9zOIHXEFYmN_w7OsnEeA"}, {"id": "ART0061", "name": "HCS Scraper \u201cPRO\u201d", "price": "3.00", "image": "https://drive.google.com/uc?export=view&id=1t2oaY30OmohK6Y_fNBfCguegvQ4vPM14"}, {"id": "ART0062", "name": "Wolfcraft steunschijf voor haakse slijper 125mm", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=1rNLqKrgGNfihHy-ghKSvEvB1VhPIUrsa"}, {"id": "ART0063", "name": "Starlock AIZ 32 APB bi-metalen-invalzaagblad", "price": "5.00", "image": "https://drive.google.com/uc?export=view&id=18JpFciOlQGc-NsmXLLKiIrHNk4Het1lR"}, {"id": "ART0064", "name": "Wolfcraft 3-delige SDS-Plus Beitelset", "price": "7.50", "image": "https://drive.google.com/uc?export=view&id=1mWd4NYL5rcefWQs7xY8jBzFnOovlTcxl"}];
+                const productsContainer = document.getElementById('products');
+                const searchInput = document.getElementById('search');
+                const modal = document.getElementById('modal');
+                
+                function renderProducts(productsToRender) {
+                    productsContainer.innerHTML = productsToRender.map(product => `
+                        <div class="product-card bg-white rounded-lg overflow-hidden cursor-pointer shadow-md" 
+                             onclick="showProduct('${product.id}')">
+                            <div class="h-64 overflow-hidden bg-white">
+                                <img src="${product.image}" 
+                                     alt="${product.name}" 
+                                     class="product-image"
+                                     onerror="this.src='https://via.placeholder.com/300x300?text=Geen+afbeelding'">
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-2">${product.name}</h3>
+                                <p class="text-gray-600 text-sm mb-2">${product.id}</p>
+                                <p class="text-xl font-bold">€${product.price}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                searchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const filteredProducts = products.filter(product => 
+                        product.name.toLowerCase().includes(searchTerm) ||
+                        product.id.toLowerCase().includes(searchTerm)
+                    );
+                    renderProducts(filteredProducts);
+                });
+                
+                function showProduct(productId) {
+                    const product = products.find(p => p.id === productId);
+                    document.getElementById('modal-title').textContent = product.name;
+                    document.getElementById('modal-id').textContent = `Artikelnummer: ${product.id}`;
+                    document.getElementById('modal-price').textContent = `€${product.price}`;
+                    document.getElementById('modal-image').src = product.image;
+                    modal.classList.remove('hidden');
+                }
+                
+                function closeModal() {
+                    modal.classList.add('hidden');
+                }
+                
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') closeModal();
+                });
+                
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal();
+                });
+                
+                renderProducts(products);
+            </script>
+        </body>
+        </html>
+        
